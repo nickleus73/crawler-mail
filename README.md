@@ -1,0 +1,1 @@
+Just install CasperJS : `npm install -g casperjs` 

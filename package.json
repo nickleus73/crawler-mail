@@ -1,0 +1,12 @@
+{
+  "name": "scrawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scrawler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MORICET Nicolas <moricet.nicolas@free.fr>",
+  "license": "ISC",
+  "devDependencies": { }
+}

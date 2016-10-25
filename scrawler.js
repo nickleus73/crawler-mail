@@ -5,6 +5,7 @@ var helpers = require('./helpers');
 var system = require('system');
 var fs = require('fs');
 
+
 if(system.args.length === 4) {
     console.warn("You must specify an url");
     phantom.exit(1);
@@ -24,12 +25,20 @@ var addInFile = function(content, file) {
     stream.close();
 };
 
+var fileContents = fs.read('./csv/quotes.csv');
+var lines = fileContents.toString().split('\n');
+
+lines.forEach(function(e) {
+    if(e !== '') {
+        emails.push(e);
+    }
+});
+
 // Spider from the given URL
 function spider(url) {
 
     // Add the URL to the visited stack
     visitedUrls.push(url);
-
     // Open the URL
     casper.open(url).then(function() {
 
@@ -77,8 +86,8 @@ function spider(url) {
 
             if(newUrl.indexOf('mailto:') === 0 && emails.indexOf(newUrl.substr(newUrl.indexOf(':') + 1))) {
                 var email = newUrl.substr(newUrl.indexOf(':') + 1);
-                console.log(email);
                 var matched = email.match(emailRegex);
+
                 if(matched !== null) {
                     console.log('New mail added: ' + matched[0]);
 

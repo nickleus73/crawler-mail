@@ -1,3 +1,7 @@
+// Create instances
+var casper = require('casper').create({ /*verbose: true, logLevel: 'debug'*/ });
+var utils = require('utils');
+var helpers = require('./helpers');
 var system = require('system');
 var fs = require('fs');
 
@@ -11,10 +15,7 @@ var startUrl = system.args[4];
 // URL variables
 var visitedUrls = [], pendingUrls = [], emails = [];
 
-// Create instances
-var casper = require('casper').create({ /*verbose: true, logLevel: 'debug'*/ });
-var utils = require('utils');
-var helpers = require('./helpers');
+var emailRegex = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g;
 
 var addInFile = function(content, file) {
     var stream = fs.open(file,'aw');
@@ -44,17 +45,17 @@ function spider(url) {
         this.echo(this.colorizer.format(status, statusStyle) + ' ' + url);
 
         // Search on content if an email exist
-        var matched = this.getPageContent().match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g);
-
-        if(matched !== null) {
-            if(emails.indexOf(matched[0])) {
-                console.log('New mail added: ' + matched[0]);
-
-                addInFile(matched[0], 'csv/quotes.csv');
-
-                emails.push(matched[0]);
-            }
-        }
+        // var matched = this.getPageContent().match(emailRegex);
+        //
+        // if(matched !== null) {
+        //     if(emails.indexOf(matched[0])) {
+        //         console.log('New mail added: ' + matched[0]);
+        //
+        //         addInFile(matched[0], 'csv/quotes.csv');
+        //
+        //         emails.push(matched[0]);
+        //     }
+        // }
 
         // Find links present on this page
         var links = this.evaluate(function() {
@@ -76,11 +77,15 @@ function spider(url) {
 
             if(newUrl.indexOf('mailto:') === 0 && emails.indexOf(newUrl.substr(newUrl.indexOf(':') + 1))) {
                 var email = newUrl.substr(newUrl.indexOf(':') + 1);
-                console.log('New mail added: ' + email);
+                console.log(email);
+                var matched = email.match(emailRegex);
+                if(matched !== null) {
+                    console.log('New mail added: ' + matched[0]);
 
-                addInFile(email, 'csv/quotes.csv');
+                    addInFile(email, 'csv/quotes.csv');
 
-                emails.push(email)
+                    emails.push(email);
+                }
             }
 
             if (pendingUrls.indexOf(newUrl) == -1 && visitedUrls.indexOf(newUrl) == -1) {
